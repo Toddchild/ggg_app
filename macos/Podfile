@@ -1,42 +1,33 @@
-platform :osx, '10.14'
-
-# CocoaPods analytics sends network stats synchronously affecting flutter build latency.
-ENV['COCOAPODS_DISABLE_STATS'] = 'true'
-
-project 'Runner', {
-  'Debug' => :debug,
-  'Profile' => :release,
-  'Release' => :release,
-}
+platform :osx, '10.15'
 
 def flutter_root
   generated_xcode_build_settings_path = File.expand_path(File.join('..', 'Flutter', 'ephemeral', 'Flutter-Generated.xcconfig'), __FILE__)
   unless File.exist?(generated_xcode_build_settings_path)
-    raise "#{generated_xcode_build_settings_path} must exist. If you're running pod install manually, make sure \"flutter pub get\" is executed first"
+    raise "Generated.xcconfig must exist. If you're running pod install manually, run `flutter pub get` first."
   end
-
   File.foreach(generated_xcode_build_settings_path) do |line|
-    matches = line.match(/FLUTTER_ROOT\=(.*)/)
-    return matches[1].strip if matches
+    match = line.match(/FLUTTER_ROOT=(.*)/)
+    return match[1].strip if match
   end
-  raise "FLUTTER_ROOT not found in #{generated_xcode_build_settings_path}. Try deleting Flutter-Generated.xcconfig, then run \"flutter pub get\""
+  raise "FLUTTER_ROOT not found in Flutter-Generated.xcconfig"
 end
 
-require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelper'), flutter_root)
+require File.expand_path(File.join(flutter_root, 'packages', 'flutter_tools', 'bin', 'podhelper.rb'))
 
 flutter_macos_podfile_setup
 
 target 'Runner' do
   use_frameworks!
-
+  use_modular_headers!
   flutter_install_all_macos_pods File.dirname(File.realpath(__FILE__))
-  target 'RunnerTests' do
-    inherit! :search_paths
-  end
 end
 
 post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    flutter_additional_macos_build_settings(target)
+  # Ensure all pods build for 10.15 to silence the 10.11 warnings.
+  installer.pods_project.targets.each do |t|
+    t.build_configurations.each do |config|
+      config.build_settings['MACOSX_DEPLOYMENT_TARGET'] = '10.15'
+    end
   end
+  flutter_additional_macos_build_settings(installer)
 end

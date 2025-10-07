@@ -119,7 +119,7 @@ class _ContractorHomeState extends State<ContractorHome> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if ((j.address ?? '').isNotEmpty) Text(j.address!),
+            if ((j.address ?? '').isNotEmpty) Text(j.address),
             if ((j.city ?? '').isNotEmpty) Text(j.city!),
             if ((j.status ?? '').isNotEmpty)
               Padding(

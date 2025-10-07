@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'customer/customer_home_page.dart';
 
-void main() => runApp(const CustomerApp());
+void main() {
+  runApp(const CustomerApp());
+}
 
 class CustomerApp extends StatelessWidget {
   const CustomerApp({super.key});
@@ -8,21 +11,26 @@ class CustomerApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'GGG – Customer',
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Customer App')),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () {
-              // for now just show a snackbar until deep link is added
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Contractor app coming soon...')),
-              );
-            },
-            child: const Text('Would you like to become a contractor?'),
-          ),
-        ),
+      title: 'GGG Customer',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
+        useMaterial3: true,
       ),
+      home: const CustomerHomePage(),
+      routes: {
+        // keep for future steps
+        '/book': (_) => const PlaceholderPage(title: 'Booking (placeholder)'),
+      },
     );
+  }
+}
+
+class PlaceholderPage extends StatelessWidget {
+  final String title;
+  const PlaceholderPage({required this.title, super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(appBar: AppBar(title: Text(title)), body: const Center(child: Text('Coming soon')));
   }
 }

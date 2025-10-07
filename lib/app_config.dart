@@ -1,6 +1,7 @@
 // lib/app_config.dart
 class AppConfig {
-  static const String baseUrl = 'https://gogarbagegrabber.com';
+  static const String baseUrl = 'https://gogarbagegrabber.com/wp-json/ggg/v1';
+  static const String defaultCity = 'red-deer';
 
   // TEMP: contractor creds for testing (use your real values)
   static const String contractorUsername = 'contractor1';
