@@ -1,16 +1,22 @@
-# ggg_app
+ggg_app
+A small Flutter application by Toddchild.
 
-A new Flutter project.
+Summary
+This repository contains the source for the ggg_app Flutter project.
 
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Requirements
+Flutter SDK (stable)
+Dart SDK (bundled with Flutter)
+Android Studio / Xcode for device builds (optional)
+Quick start
+Install Flutter: https://flutter.dev/docs/get-started/install
+Install dependencies:
+Code
+flutter pub get
+Run the app:
+Code
+flutter run
+Branches
+main — primary branch (current)
+License
+Add a license as needed. EOF
