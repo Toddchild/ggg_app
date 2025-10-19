@@ -50,3 +50,6 @@ Pods/
 macos/Pods/
 macos/Podfile.lock
 ios.bak*/
+.flutter-plugins-dependencies*
+ios/*_backup
+ios.bak*/

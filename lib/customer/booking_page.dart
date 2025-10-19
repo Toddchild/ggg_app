@@ -44,8 +44,18 @@ class _BookingPageState extends State<BookingPage> {
 
   String _monthName(int m) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
     return months[m - 1];
   }
@@ -53,7 +63,8 @@ class _BookingPageState extends State<BookingPage> {
   Future<void> _pickDate() async {
     final now = DateTime.now();
     final first = _tomorrow(now);
-    final last = DateTime(now.year, now.month, now.day).add(const Duration(days: 180));
+    final last =
+        DateTime(now.year, now.month, now.day).add(const Duration(days: 180));
 
     final picked = await showDatePicker(
       context: context,
@@ -63,7 +74,7 @@ class _BookingPageState extends State<BookingPage> {
       helpText: 'Select pickup date',
       builder: (context, child) {
         return Theme(
-          data: Theme.of(context).copyWith(useMaterial3: true),
+          data: Theme.of(context).copyWith(),
           child: child!,
         );
       },
@@ -127,11 +138,14 @@ class _BookingPageState extends State<BookingPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(s.name, style: Theme.of(context).textTheme.titleMedium),
+                      Text(s.name,
+                          style: Theme.of(context).textTheme.titleMedium),
                       const SizedBox(height: 8),
-                      Text(s.description, maxLines: 3, overflow: TextOverflow.ellipsis),
+                      Text(s.description,
+                          maxLines: 3, overflow: TextOverflow.ellipsis),
                       const SizedBox(height: 8),
-                      Text('${s.minutes} min • \$${s.price.toStringAsFixed(2)}'),
+                      Text(
+                          '${s.minutes} min • \$${s.price.toStringAsFixed(2)}'),
                     ],
                   ),
                 ),
@@ -152,8 +166,9 @@ class _BookingPageState extends State<BookingPage> {
                       labelText: 'Your name',
                       border: OutlineInputBorder(),
                     ),
-                    validator: (v) =>
-                        (v == null || v.trim().isEmpty) ? 'Please enter your name' : null,
+                    validator: (v) => (v == null || v.trim().isEmpty)
+                        ? 'Please enter your name'
+                        : null,
                   ),
                   const SizedBox(height: 16),
 
@@ -190,7 +205,8 @@ class _BookingPageState extends State<BookingPage> {
                   const SizedBox(height: 16),
 
                   // Window picker: 8–12 or 12–6
-                  Text('Pickup window', style: Theme.of(context).textTheme.labelLarge),
+                  Text('Pickup window',
+                      style: Theme.of(context).textTheme.labelLarge),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 12,
@@ -199,12 +215,14 @@ class _BookingPageState extends State<BookingPage> {
                       _WindowChip(
                         label: TimeWindow.morning.label,
                         selected: _window == TimeWindow.morning,
-                        onTap: () => setState(() => _window = TimeWindow.morning),
+                        onTap: () =>
+                            setState(() => _window = TimeWindow.morning),
                       ),
                       _WindowChip(
                         label: TimeWindow.afternoon.label,
                         selected: _window == TimeWindow.afternoon,
-                        onTap: () => setState(() => _window = TimeWindow.afternoon),
+                        onTap: () =>
+                            setState(() => _window = TimeWindow.afternoon),
                       ),
                     ],
                   ),
@@ -276,7 +294,8 @@ class BookingSuccessPage extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.check_circle, size: 64, color: theme.colorScheme.primary),
+                Icon(Icons.check_circle,
+                    size: 64, color: theme.colorScheme.primary),
                 const SizedBox(height: 16),
                 Text('Thanks, $name!', style: theme.textTheme.headlineSmall),
                 const SizedBox(height: 8),
@@ -291,7 +310,8 @@ class BookingSuccessPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
                 FilledButton(
-                  onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
+                  onPressed: () =>
+                      Navigator.of(context).popUntil((r) => r.isFirst),
                   child: const Text('Done'),
                 ),
               ],

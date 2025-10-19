@@ -1,151 +1,211 @@
+// lib/screens/contractor_home.dart
 import 'package:flutter/material.dart';
+import 'package:ggg_app/screens/job_detail.dart';
 import '../models/job.dart';
-import '../data/mock_jobs.dart';
-import 'job_detail.dart';
+import '../services/api_service.dart' hide BuildContext;
 
 class ContractorHome extends StatefulWidget {
-  const ContractorHome({super.key});
+  final ApiService apiService;
+  const ContractorHome({required this.apiService, super.key});
 
   @override
   State<ContractorHome> createState() => _ContractorHomeState();
 }
 
-class _ContractorHomeState extends State<ContractorHome> {
-  // DEMO is hard-locked ON to eliminate any network (no more 404s).
-  final bool _useDemo = true;
+// Private widget to handle the list view for each tab
+class _JobListView extends StatelessWidget {
+  final ApiService apiService;
+  final String status;
+  final List<Job> jobs;
+  final Function(bool) onRefreshNeeded;
 
-  List<Job> _open = const [];
-  List<Job> _mine = const [];
-
-  @override
-  void initState() {
-    super.initState();
-    _loadDemo();
-  }
-
-  void _loadDemo() {
-    // Pull everything from local mock data. No API calls.
-    setState(() {
-      _mine = List<Job>.from(MockJobs.mine);
-      _open = List<Job>.from(MockJobs.open);
-    });
-
-    // Let’s also show a toast the first time / on refresh.
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('DEMO LIST — mock jobs loaded')),
-      );
-    }
-  }
-
-  void _openDetail(Job j) {
-    Navigator.push(
-      context,
+  const _JobListView({
+    required this.apiService,
+    required this.status,
+    required this.jobs,
+    required this.onRefreshNeeded,
+  });
+  // Navigates to the detail page and handles the return value (needs refresh)
+  Future<void> _navigateToDetail(BuildContext context, Job job) async {
+    final bool? needsRefresh = await Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => JobDetailScreen(job: j), // local-only detail
+        builder: (context) => JobDetailScreen(
+          job: job,
+        ),
       ),
     );
+
+    // Pass the refresh signal back up to the parent `ContractorHome`
+    // Pass the refresh signal back up to the parent `ContractorHome`
+    if (needsRefresh == true) {
+      onRefreshNeeded(true);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Contractor — DEMO (Local Only)'),
-        actions: [
-          // Pink "DEMO" badge so it's obvious
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: Colors.pink.shade100,
-              borderRadius: BorderRadius.circular(99),
-              border: Border.all(color: Colors.pink.shade300),
-            ),
-            alignment: Alignment.center,
-            child: const Text('DEMO', style: TextStyle(color: Colors.pink)),
-          ),
-          IconButton(
-            tooltip: 'Reload demo jobs',
-            onPressed: _loadDemo,
-            icon: const Icon(Icons.refresh),
-          ),
-          // Flask icon shown but disabled (demo is locked ON)
-          IconButton(
-            tooltip: 'Demo is locked ON',
-            onPressed: null,
-            icon: const Icon(Icons.science),
-          ),
-        ],
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(12),
-        child: (_open.isEmpty && _mine.isEmpty)
-            ? Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('No demo jobs yet'),
-                    const SizedBox(height: 12),
-                    FilledButton(
-                      onPressed: _loadDemo,
-                      child: const Text('Load Demo Jobs'),
-                    ),
-                  ],
-                ),
-              )
-            : ListView(
-                children: [
-                  if (_mine.isNotEmpty) ...[
-                    const _SectionHeader('My Jobs'),
-                    ..._mine.map(_buildTile),
-                    const SizedBox(height: 20),
-                  ],
-                  if (_open.isNotEmpty) ...[
-                    const _SectionHeader('Open Jobs'),
-                    ..._open.map(_buildTile),
-                  ],
-                ],
-              ),
-      ),
-    );
-  }
-
-  Widget _buildTile(Job j) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      child: ListTile(
-        title: Text(j.title ?? 'Job'),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if ((j.address ?? '').isNotEmpty) Text(j.address),
-            if ((j.city ?? '').isNotEmpty) Text(j.city!),
-            if ((j.status ?? '').isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 6),
-                child: Text('Status: ${j.status}'),
-              ),
-          ],
+    if (jobs.isEmpty) {
+      return Center(
+        child: Text(
+          'No ${status.toLowerCase()} jobs found.',
+          style: TextStyle(color: Theme.of(context).colorScheme.outline),
         ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => _openDetail(j),
-      ),
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      itemCount: jobs.length,
+      itemBuilder: (context, index) {
+        final job = jobs[index];
+        return Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 6.0),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundColor: status == 'pending'
+                  ? Colors.red.shade100
+                  : status == 'inProgress'
+                      ? Colors.amber.shade100
+                      : Colors.green.shade100,
+              child: Icon(
+                status == 'pending'
+                    ? Icons.assignment_outlined
+                    : status == 'inProgress'
+                        ? Icons.forklift
+                        : Icons.check_circle_outline,
+                color: status == 'pending'
+                    ? Colors.red
+                    : status == 'inProgress'
+                        ? Colors.amber.shade700
+                        : Colors.green.shade700,
+              ),
+            ),
+            title: Text(
+              job.name,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            subtitle: Text(
+              'Job #${job.id} | ${job.pickupTime.toString().substring(0, 16)}',
+            ),
+            trailing: Text(
+              job.status.toUpperCase(),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: status == 'pending'
+                    ? Colors.red
+                    : Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            onTap: () => _navigateToDetail(context, job),
+          ),
+        );
+      },
     );
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String text;
-  const _SectionHeader(this.text);
+class _ContractorHomeState extends State<ContractorHome> {
+  // We fetch all relevant jobs once and then filter them based on the tab
+  late Future<List<Job>> _jobsFuture;
+
+  // Tab controller labels and the corresponding status filters
+  final List<String> _tabs = ['Available', 'My Jobs', 'Completed'];
+  final Map<String, List<String>> _statusMap = {
+    'Available': ['pending'], // Jobs ready to be accepted
+    'My Jobs': ['inProgress'], // Jobs accepted by the current contractor
+    'Completed': ['completed'], // Jobs finished
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _jobsFuture = _fetchJobs();
+  }
+
+  // Refetches jobs from the API (used on refresh and when returning from detail)
+  Future<List<Job>> _fetchJobs() async {
+    // In a real app, this would query a single endpoint for all contractor jobs,
+    // but for demo simplicity, we query and combine status lists.
+    final available = await widget.apiService.listJobs('pending');
+    final inProgress = await widget.apiService.listJobs('inProgress');
+    final completed = await widget.apiService.listJobs('completed');
+
+    return [...available, ...inProgress, ...completed];
+  }
+
+  // Handles the explicit refresh request
+  Future<void> _handleRefresh() async {
+    setState(() {
+      _jobsFuture = _fetchJobs();
+    });
+  }
+
+  // Handles the refresh request from child widgets (JobDetailPage)
+  void _handleRefreshNeeded(bool needsRefresh) {
+    if (needsRefresh) {
+      _handleRefresh();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 12, 4, 6),
-      child: Text(
-        text,
-        style: Theme.of(context).textTheme.titleMedium,
+    return DefaultTabController(
+      length: _tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Contractor Dashboard'),
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          foregroundColor: Theme.of(context).colorScheme.onPrimary,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _handleRefresh,
+            ),
+          ],
+          bottom: TabBar(
+            tabs: _tabs.map((name) => Tab(text: name)).toList(),
+            indicatorColor: Theme.of(context).colorScheme.onPrimary,
+            labelColor: Theme.of(context).colorScheme.onPrimary,
+            unselectedLabelColor: Colors.white70,
+          ),
+        ),
+        body: FutureBuilder<List<Job>>(
+          future: _jobsFuture,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(
+                  child: Text('Error loading jobs: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(child: Text('No jobs to display.'));
+            }
+
+            // Data loaded successfully, now build the tab views
+            final allJobs = snapshot.data!;
+
+            return TabBarView(
+              children: _tabs.map((tabName) {
+                final requiredStatuses = _statusMap[tabName]!;
+
+                // Filter the jobs based on the required statuses for the current tab
+                final filteredJobs = allJobs
+                    .where((job) => requiredStatuses.contains(job.status))
+                    .toList();
+
+                return RefreshIndicator(
+                  onRefresh: _handleRefresh,
+                  child: _JobListView(
+                    apiService: widget.apiService,
+                    status: tabName,
+                    jobs: filteredJobs,
+                    onRefreshNeeded: _handleRefreshNeeded,
+                  ),
+                );
+              }).toList(),
+            );
+          },
+        ),
       ),
     );
   }

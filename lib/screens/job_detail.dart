@@ -1,4 +1,6 @@
 /// lib/screens/job_detail.dart
+library;
+
 import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -41,7 +43,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
 
     // If demo explicitly ON -> use mock API immediately.
     if (_useDemo) {
-      _api = GggApiMock();
+      _api = const GggApiMock();
     } else {
       // Try to load real creds; if missing, auto-fallback to demo.
       _loadApiWithAutoFallback();
@@ -60,11 +62,12 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     } else {
       // No creds found — run in demo automatically so buttons still work
       setState(() {
-        _api = GggApiMock();
+        _api = const GggApiMock();
         _useDemo = true;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('No login found: using Demo for this job')),
+        const SnackBar(
+            content: Text('No login found: using Demo for this job')),
       );
     }
   }
@@ -109,8 +112,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
     }
   }
 
-  Future<void> _accept() async => _run(() => _api!.accept(_job.id));
-  Future<void> _arrive() async => _run(() => _api!.arrive(_job.id));
+  Future<void> _accept() async => _run(() => _api!.accept(_job.id as int));
+  Future<void> _arrive() async => _run(() => _api!.arrive(_job.id as int));
   Future<void> _complete() async {
     if (_photos.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -118,9 +121,10 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
       );
       return;
     }
-    await _run(() => _api!.complete(_job.id));
+    await _run(() => _api!.complete(_job.id as int));
   }
-  Future<void> _cancel() async => _run(() => _api!.cancel(_job.id));
+
+  Future<void> _cancel() async => _run(() => _api!.cancel(_job.id as int));
   Future<void> _escalate() async {
     final note = await showDialog<String?>(
       context: context,
@@ -134,14 +138,18 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             maxLines: 3,
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, null), child: const Text('Cancel')),
-            ElevatedButton(onPressed: () => Navigator.pop(context, c.text.trim()), child: const Text('Send')),
+            TextButton(
+                onPressed: () => Navigator.pop(context, null),
+                child: const Text('Cancel')),
+            ElevatedButton(
+                onPressed: () => Navigator.pop(context, c.text.trim()),
+                child: const Text('Send')),
           ],
         );
       },
     );
     if (note == null || note.isEmpty) return;
-    await _run(() => _api!.escalate(_job.id, message: note));
+    await _run(() => _api!.escalate(_job.id as int, message: note));
   }
 
   // ----- UI -----
@@ -149,7 +157,7 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(_job.title ?? 'Job ${_job.id}'),
+        title: Text(_job.title ?? 'Job Detail'),
         actions: [
           if (_useDemo)
             const Padding(
@@ -173,19 +181,24 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Text('JOB DETAIL — DEMO READY',
-                    style: TextStyle(color: Colors.pink, fontWeight: FontWeight.bold)),
+                    style: TextStyle(
+                        color: Colors.pink, fontWeight: FontWeight.bold)),
               ),
 
             Row(
               children: [
-                Chip(label: Text('Status: ${(_job.status ?? '').toUpperCase()}')),
+                Chip(
+                    label:
+                        Text('Status: ${(_job.status ?? '').toUpperCase()}')),
                 const SizedBox(width: 12),
                 if (_useDemo)
-                  const Chip(label: Text('DEMO'), backgroundColor: Color(0xffffe4ec)),
+                  const Chip(
+                      label: Text('DEMO'), backgroundColor: Color(0xffffe4ec)),
               ],
             ),
             const SizedBox(height: 8),
-            if ((_job.address ?? '').isNotEmpty) Text(_job.address!),
+            if (_job.address != null && _job.address!.isNotEmpty)
+              Text(_job.address!),
 
             const SizedBox(height: 16),
             const Divider(),
@@ -203,7 +216,8 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Photos (need 2)', style: Theme.of(context).textTheme.titleMedium),
+                Text('Photos (need 2)',
+                    style: Theme.of(context).textTheme.titleMedium),
                 FilledButton.icon(
                   onPressed: _pickPhoto,
                   icon: const Icon(Icons.add_a_photo),
@@ -234,14 +248,16 @@ class _JobDetailScreenState extends State<JobDetailScreen> {
                             right: 0,
                             top: 0,
                             child: InkWell(
-                              onTap: () => setState(() => _photos.removeAt(e.key)),
+                              onTap: () =>
+                                  setState(() => _photos.removeAt(e.key)),
                               child: Container(
                                 decoration: const BoxDecoration(
                                   color: Colors.black54,
                                   shape: BoxShape.circle,
                                 ),
                                 padding: const EdgeInsets.all(2),
-                                child: const Icon(Icons.close, color: Colors.white, size: 18),
+                                child: const Icon(Icons.close,
+                                    color: Colors.white, size: 18),
                               ),
                             ),
                           ),

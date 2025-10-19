@@ -77,7 +77,9 @@ class _HeaderPlaceholder extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
+            // ignore: deprecated_member_use
             color.withOpacity(0.10),
+            // ignore: deprecated_member_use
             color.withOpacity(0.25),
           ],
         ),
@@ -96,6 +98,7 @@ class _Pill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: deprecated_member_use
     final border = Theme.of(context).colorScheme.primary.withOpacity(0.25);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -113,6 +116,7 @@ class _Pill extends StatelessWidget {
 
 /// Fallback booking screen to avoid constructor/import mismatches.
 /// Replace this with your real BookingPage and update the navigator call above.
+// ignore: unused_element
 class _BookingPageFallback extends StatelessWidget {
   const _BookingPageFallback({required this.service});
   final Service service;

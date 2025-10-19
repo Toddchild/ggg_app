@@ -1,4 +1,9 @@
 // lib/app_config.dart
+import 'dart:ui';
+
+// ignore: implementation_imports
+import 'package:flutter/src/widgets/icon_data.dart';
+
 class AppConfig {
   static const String baseUrl = 'https://gogarbagegrabber.com/wp-json/ggg/v1';
   static const String defaultCity = 'red-deer';
@@ -14,6 +19,16 @@ class AppConfig {
     QuickItem(label: 'Half Truck', productId: 1277),
     QuickItem(label: 'Full Truck', productId: 1278),
   ];
+
+  static Color? get primaryBrandColor => null;
+
+  static get navyBlue => null;
+
+  static Color? get brandGreen => null;
+
+  static String? get logoUrl => null;
+
+  static Color? get lightBackground => null;
 }
 
 // tiny helper for the customer screen
@@ -22,6 +37,8 @@ class QuickItem {
   final int productId;
   final int quantity;
   const QuickItem({required this.label, required this.productId, this.quantity = 1});
+
+  IconData? get icon => null;
 }
 
  

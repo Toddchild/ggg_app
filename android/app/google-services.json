@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "803445287839",
+    "project_id": "go-garbage-grabber",
+    "storage_bucket": "go-garbage-grabber.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:803445287839:android:738ff7eda40b423226abaa",
+        "android_client_info": {
+          "package_name": "com.toddchild.ggg_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBP1-8gXi6aoAp8BnvzmTwmgUq1SD129TA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

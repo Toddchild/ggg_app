@@ -39,14 +39,18 @@ class CustomerOneTapScreen extends StatelessWidget {
             // One-tap quick items
             Align(
               alignment: Alignment.centerLeft,
-              child: Text('One-tap pickup', style: Theme.of(context).textTheme.titleLarge),
+              child: Text('One-tap pickup',
+                  style: Theme.of(context).textTheme.titleLarge),
             ),
             const SizedBox(height: 8),
             Expanded(
               child: GridView.builder(
                 itemCount: AppConfig.quickItems.length,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, mainAxisSpacing: 12, crossAxisSpacing: 12, childAspectRatio: 1.9,
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 12,
+                  crossAxisSpacing: 12,
+                  childAspectRatio: 1.9,
                 ),
                 itemBuilder: (context, i) {
                   final item = AppConfig.quickItems[i];
@@ -60,11 +64,12 @@ class CustomerOneTapScreen extends StatelessWidget {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.shopping_bag, size: 28),
+                              const Icon(Icons.shopping_bag, size: 28),
                               const SizedBox(height: 8),
                               Text(item.label, textAlign: TextAlign.center),
                               const SizedBox(height: 6),
-                              const Text('Tap → Checkout', style: TextStyle(fontSize: 12)),
+                              const Text('Tap → Checkout',
+                                  style: TextStyle(fontSize: 12)),
                             ],
                           ),
                         ),

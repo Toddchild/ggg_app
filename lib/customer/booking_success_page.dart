@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:ggg_app/customer/booking_details.dart';
 
 class BookingSuccessPage extends StatelessWidget {
   const BookingSuccessPage({
     super.key,
     required this.customerName,
-    required this.startsAt,
+    required this.startsAt, required BookingDetails details,
   });
 
   final String customerName;
@@ -43,6 +44,7 @@ class BookingSuccessPage extends StatelessWidget {
                   Text(
                     'Your booking is set for $dateStr at $timeStr.',
                     style: theme.textTheme.bodyMedium?.copyWith(
+                      // ignore: deprecated_member_use
                       color: theme.textTheme.bodyMedium?.color?.withOpacity(0.9),
                     ),
                     textAlign: TextAlign.center,

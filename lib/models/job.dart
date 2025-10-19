@@ -1,82 +1,87 @@
-// lib/models/job.dart
-// Fingerprint: JOB-MODEL-v3
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Job {
-  final int id;              // numeric id (e.g., 1001)
-  final String title;        // short title
-  final String status;       // 'open' | 'accepted' | 'arrived' | 'completed' | 'canceled'
-  final String address;      // street address only
-  final String? city;        // optional city, shown when present
-  final String? notes;       // optional notes
-  final double? price;       // optional price
+  final String id;
+  final String userId; // <-- CRITICAL: Must be defined here
+  final String userName;
+  final String name;
+  final GeoPoint location;
+  final DateTime createdAt;
+  final bool isCompleted; // <-- CRITICAL: Must be defined here
 
   const Job({
     required this.id,
-    required this.title,
-    required this.status,
-    required this.address,
-    this.city,
-    this.notes,
-    this.price,
+    required this.userId, // <-- CRITICAL: Must be required in constructor
+    required this.userName,
+    required this.name,
+    required this.location,
+    required this.createdAt,
+    required this.isCompleted, required String title, required String status, required String address, required String city, required String notes, required double price, // <-- CRITICAL: Must be required in constructor
   });
 
+  // Factory method to create a Job from a Firestore Map
+  factory Job.fromJson(Map<String, dynamic> json) {
+    return Job(
+      id: json['id'] as String,
+      userId: json['userId'] as String,
+      userName: json['userName'] as String,
+      name: json['name'] as String,
+      location: json['location'] as GeoPoint,
+      createdAt: (json['createdAt'] as Timestamp).toDate(),
+      isCompleted: json['isCompleted'] as bool, title: '', status: '', address: '', city: '', notes: '', price: 0.0,
+    );
+  }
+
+  get pickupTime => null;
+
+  get status => null;
+
+  String? get title => null;
+
+  get contractorId => null;
+
+  get price => null;
+
+  String? get address => null;
+
+  bool? get isAccepting => null;
+
+  String? get city => null;
+
+  get notes => null;
+
+  set isAccepting(bool? isAccepting) {}
+
+  // Method to convert the Job object to a Firestore Map
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'userId': userId,
+      'userName': userName,
+      'name': name,
+      'location': location,
+      'createdAt': Timestamp.fromDate(createdAt),
+      'isCompleted': isCompleted,
+    };
+  }
+
   Job copyWith({
-    int? id,
-    String? title,
-    String? status,
-    String? address,
-    String? city,
-    String? notes,
-    double? price,
+    bool? isCompleted,
   }) {
     return Job(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      status: status ?? this.status,
-      address: address ?? this.address,
-      city: city ?? this.city,
-      notes: notes ?? this.notes,
-      price: price ?? this.price,
+      id: id,
+      userId: userId,
+      userName: userName,
+      name: name,
+      location: location,
+      createdAt: createdAt,
+      isCompleted: isCompleted ?? this.isCompleted, title: '', status: '', address: '', city: '', notes: '', price: 0.0,
     );
   }
 
-  /// Be liberal in what we accept (string or int for `id`, string/num for `price`)
-  factory Job.fromJson(Map<String, dynamic> j) {
-    int parseId(dynamic v) {
-      if (v is int) return v;
-      if (v is String) {
-        final digits = RegExp(r'\d+').firstMatch(v)?.group(0);
-        if (digits != null) return int.parse(digits);
-        return int.tryParse(v) ?? 0;
-      }
-      return 0;
-    }
-
-    double? parsePrice(dynamic v) {
-      if (v == null) return null;
-      if (v is num) return v.toDouble();
-      if (v is String) return double.tryParse(v);
-      return null;
-    }
-
-    return Job(
-      id: parseId(j['id']),
-      title: (j['title'] ?? '').toString(),
-      status: (j['status'] ?? '').toString().toLowerCase(),
-      address: (j['address'] ?? '').toString(),
-      city: (j['city'] as String?)?.trim(),
-      notes: (j['notes'] as String?)?.trim(),
-      price: parsePrice(j['price']),
-    );
+  Map<String, dynamic> toMap() {
+    return toJson();
   }
 
-  Map<String, dynamic> toJson() => {
-        'id': id,
-        'title': title,
-        'status': status,
-        'address': address,
-        'city': city,
-        'notes': notes,
-        'price': price,
-      };
+  static fromMap(Map<String, dynamic> data, String id) {}
 }

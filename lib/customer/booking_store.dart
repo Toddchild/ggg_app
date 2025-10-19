@@ -1,5 +1,3 @@
-import 'models.dart';
-
 /// A single booking record.
 class Booking {
   Booking({

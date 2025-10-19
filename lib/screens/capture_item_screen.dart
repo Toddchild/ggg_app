@@ -78,7 +78,8 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
     final cam = _controller;
     if (cam == null || !cam.value.isInitialized) return;
 
-    if (state == AppLifecycleState.inactive || state == AppLifecycleState.paused) {
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused) {
       cam.dispose();
     } else if (state == AppLifecycleState.resumed) {
       _initCamera();
@@ -116,7 +117,8 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
       _cameras = await availableCameras();
       final back = _cameras.firstWhere(
         (c) => c.lensDirection == CameraLensDirection.back,
-        orElse: () => _cameras.isNotEmpty ? _cameras.first : (throw 'No camera'),
+        orElse: () =>
+            _cameras.isNotEmpty ? _cameras.first : (throw 'No camera'),
       );
 
       final controller = CameraController(
@@ -145,6 +147,7 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
     try {
       final x = await controller.takePicture();
       final pos = await Geolocator.getCurrentPosition(
+        // ignore: deprecated_member_use
         desiredAccuracy: LocationAccuracy.best,
       );
 
@@ -215,9 +218,9 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
                     end: Alignment.bottomCenter,
                   ),
                 ),
-                child: Column(
+                child: const Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     _Header('Take photos of the item where it sits'),
                     _Tip('Show the whole item + surroundings'),
                     _Tip('Include access path if relevant'),
@@ -262,8 +265,8 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
                         ),
                         const SizedBox(width: 8),
                         Container(
-                          padding:
-                              const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 10, vertical: 6),
                           decoration: BoxDecoration(
                             color: Colors.white10,
                             borderRadius: BorderRadius.circular(12),
@@ -293,7 +296,8 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
                                 height: 72,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  border: Border.all(color: Colors.white, width: 5),
+                                  border:
+                                      Border.all(color: Colors.white, width: 5),
                                 ),
                                 child: Center(
                                   child: AnimatedOpacity(
@@ -304,6 +308,7 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
                                       height: 54,
                                       decoration: BoxDecoration(
                                         shape: BoxShape.circle,
+                                        // ignore: deprecated_member_use
                                         color: Colors.white.withOpacity(0.9),
                                       ),
                                     ),
@@ -362,7 +367,7 @@ class _CaptureItemScreenState extends State<CaptureItemScreen>
 
 class _Header extends StatelessWidget {
   final String text;
-  const _Header(this.text, {super.key});
+  const _Header(this.text);
   @override
   Widget build(BuildContext context) => Text(
         text,
@@ -377,7 +382,7 @@ class _Header extends StatelessWidget {
 
 class _Tip extends StatelessWidget {
   final String text;
-  const _Tip(this.text, {super.key});
+  const _Tip(this.text);
   @override
   Widget build(BuildContext context) => Row(
         children: [
@@ -395,7 +400,8 @@ class _Thumb extends StatelessWidget {
   final int index;
   final String path;
   final VoidCallback onRemove;
-  const _Thumb({super.key, required this.index, required this.path, required this.onRemove});
+  const _Thumb(
+      {required this.index, required this.path, required this.onRemove});
 
   @override
   Widget build(BuildContext context) {

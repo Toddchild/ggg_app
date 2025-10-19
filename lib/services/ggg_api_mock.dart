@@ -14,14 +14,21 @@ class GggApiMock implements JobsApi {
     return value;
   }
 
+  // Normalize nullable fields so we never pass `null` into Job constructor.
   Job _with(Job j, {String? status, String? notes}) => Job(
         id: j.id,
-        title: j.title,
-        status: status ?? j.status,
-        address: j.address,
-        city: j.city,
-        notes: notes ?? j.notes,
-        price: j.price,
+        title: j.title ?? '',
+        status: status ?? j.status ?? '',
+        address: j.address ?? '',
+        city: j.city ?? '',
+        notes: notes ?? j.notes ?? '',
+        price: j.price ?? 0,
+        userId: j.userId,
+        userName: j.userName,
+        name: j.name,
+        location: j.location,
+        createdAt: j.createdAt,
+        isCompleted: j.isCompleted,
       );
 
   @override
@@ -34,32 +41,36 @@ class GggApiMock implements JobsApi {
       default:
         final all = [...MockJobs.open, ...MockJobs.mine];
         return _latency(all
-            .where((j) => (j.status ?? '').toLowerCase() == status.toLowerCase())
+            .where(
+                (j) => (j.status ?? '').toLowerCase() == status.toLowerCase())
             .toList());
     }
   }
 
   @override
   Future<Job> getJob(int id) async {
-    final j = MockJobs.find(id);
-    if (j == null) throw StateError('Mock job $id not found');
+    final idStr = id.toString();
+    final j = MockJobs.find(idStr);
+    if (j == null) throw StateError('Mock job $idStr not found');
     return _latency(j);
   }
 
   @override
   Future<Job> accept(int id) async {
-    final j = MockJobs.find(id);
-    if (j == null) throw StateError('Mock job $id not found');
+    final idStr = id.toString();
+    final j = MockJobs.find(idStr);
+    if (j == null) throw StateError('Mock job $idStr not found');
     final updated = _with(j, status: 'accepted');
     MockJobs.upsert(updated);
-    MockJobs.moveToMine(id);
+    MockJobs.moveToMine(idStr);
     return _latency(updated);
   }
 
   @override
   Future<Job> arrive(int id) async {
-    final j = MockJobs.find(id);
-    if (j == null) throw StateError('Mock job $id not found');
+    final idStr = id.toString();
+    final j = MockJobs.find(idStr);
+    if (j == null) throw StateError('Mock job $idStr not found');
     final updated = _with(j, status: 'arrived');
     MockJobs.upsert(updated);
     return _latency(updated);
@@ -67,8 +78,9 @@ class GggApiMock implements JobsApi {
 
   @override
   Future<Job> complete(int id) async {
-    final j = MockJobs.find(id);
-    if (j == null) throw StateError('Mock job $id not found');
+    final idStr = id.toString();
+    final j = MockJobs.find(idStr);
+    if (j == null) throw StateError('Mock job $idStr not found');
     final updated = _with(j, status: 'completed');
     MockJobs.upsert(updated);
     return _latency(updated);
@@ -76,15 +88,16 @@ class GggApiMock implements JobsApi {
 
   @override
   Future<Job> cancel(int id) async {
-    final j = MockJobs.find(id);
-    if (j == null) throw StateError('Mock job $id not found');
+    final idStr = id.toString();
+    final j = MockJobs.find(idStr);
+    if (j == null) throw StateError('Mock job $idStr not found');
     final updated = _with(j, status: 'open');
     MockJobs.upsert(updated);
 
     // ensure it sits in OPEN, not in MINE
-    final iMine = MockJobs.mine.indexWhere((x) => x.id == id);
+    final iMine = MockJobs.mine.indexWhere((x) => x.id == idStr);
     if (iMine != -1) MockJobs.mine.removeAt(iMine);
-    final inOpen = MockJobs.open.any((x) => x.id == id);
+    final inOpen = MockJobs.open.any((x) => x.id == idStr);
     if (!inOpen) MockJobs.open.add(updated);
 
     return _latency(updated);
@@ -92,8 +105,9 @@ class GggApiMock implements JobsApi {
 
   @override
   Future<Job> escalate(int id, {String? message}) async {
-    final j = MockJobs.find(id);
-    if (j == null) throw StateError('Mock job $id not found');
+    final idStr = id.toString();
+    final j = MockJobs.find(idStr);
+    if (j == null) throw StateError('Mock job $idStr not found');
 
     final combinedNotes = [
       if (j.notes != null && j.notes!.isNotEmpty) j.notes!,

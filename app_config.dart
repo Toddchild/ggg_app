@@ -1,35 +1,52 @@
-// lib/app_config.dart
+// lib/data/app_config.dart
+import 'package:flutter/material.dart';
 
-class AppConfig {
-  /// WordPress REST base for the GGG API (includes the namespace).
-  static const String baseUrl =
-      'https://gogarbagegrabber.com/wp-json/ggg/v1';
+/// Defines a simple item for quick, one-tap checkout.
+class QuickItem {
+  final int productId;
+  final String label;
+  final IconData icon;
 
-  /// Default city slug used in API queries.
-  static const String defaultCity = 'red-deer';
-
-  // TEMP: contractor creds for testing (use secure storage later)
-  static const String contractorUsername = 'contractor1';
-  static const String contractorAppPassword = 'E6JJ 1QMf MI67 VFSD PM3N BFgc';
-
-  /// Map visible item names -> WooCommerce product IDs (demo IDs for now).
-  static const quickItems = <QuickItem>[
-    QuickItem(label: 'Couch',          productId: 1234),
-    QuickItem(label: 'Fridge',         productId: 1260),
-    QuickItem(label: 'Large Mattress', productId: 1239),
-    QuickItem(label: 'Half Truck',     productId: 1277),
-    QuickItem(label: 'Full Truck',     productId: 1278),
-  ];
+  const QuickItem({
+    required this.productId,
+    required this.label,
+    required this.icon,
+  });
 }
 
-// tiny helper for the customer screen
-class QuickItem {
-  final String label;
-  final int productId;
-  final int quantity;
-  const QuickItem({
-    required this.label,
-    required this.productId,
-    this.quantity = 1,
-  });
+/// Global application configuration settings.
+class AppConfig {
+  // Base URL for the external WooCommerce site or Quote Engine.
+  static const String baseUrl = 'https://demo-garbage-app.com';
+
+  // Quick items used for the CustomerOneTapScreen
+  static const List<QuickItem> quickItems = [
+    QuickItem(
+      productId: 101, // Corresponds to a product ID in the external store
+      label: 'Single Mattress',
+      // Swapped from bed_outlined to single_bed_outlined for clarity
+      icon: Icons.single_bed_outlined, 
+    ),
+    QuickItem(
+      productId: 102,
+      label: 'Small Appliance',
+      // Swapped from kitchen_outlined to local_laundry_service_outlined 
+      // to better represent a standalone appliance.
+      icon: Icons.local_laundry_service_outlined,
+    ),
+    QuickItem(
+      productId: 103,
+      label: 'Small Furniture',
+      // Swapped from chair_outlined to table_bar_outlined 
+      // for a more general 'furniture' look.
+      icon: Icons.table_bar_outlined,
+    ),
+    QuickItem(
+      productId: 104,
+      label: 'Yard Waste Bag (x5)',
+      // Swapped from grass_outlined to delete_sweep_outlined 
+      // to clearly indicate a cleanup/removal service.
+      icon: Icons.delete_sweep_outlined,
+    ),
+  ];
 }

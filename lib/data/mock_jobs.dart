@@ -1,64 +1,66 @@
 // lib/data/mock_jobs.dart
 // Fingerprint: MOCK-JOBS-v3
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import '../models/job.dart';
 
 class MockJobs {
   /// Jobs available to accept
   static final List<Job> open = <Job>[
     Job(
-      id: 1001,
+      id: '1001',
       title: 'Couch Pickup',
       status: 'open',
       address: '55 Parkstone Ave',
       city: 'Red Deer',
       notes: '1 couch, curbside',
-      price: 65.0,
+      price: 65.0, userId: '', userName: '', name: '', location: const GeoPoint(0,0), createdAt: DateTime.now(), isCompleted: false,
     ),
     Job(
-      id: 1002,
+      id: '1002',
       title: 'Fridge Removal',
       status: 'open',
       address: '12 Norwood Close',
       city: 'Red Deer',
       notes: 'Stairs, bring dolly',
-      price: 95.0,
+      price: 95.0, userId: '', userName: '', name: '', location: const GeoPoint(0,0), createdAt: DateTime.now(), isCompleted: false,
     ),
     Job(
-      id: 1003,
+      id: '1003',
       title: 'Yard Waste',
       status: 'open',
       address: '88 Piper Dr',
       city: 'Red Deer',
       notes: 'Bags + branches',
-      price: 55.0,
+      price: 55.0, userId: '', userName: '', name: '', location: const GeoPoint(0,0), createdAt: DateTime.now(), isCompleted: false,
     ),
   ];
 
   /// Jobs already in my queue
   static final List<Job> mine = <Job>[
     Job(
-      id: 2001,
+      id: '2001',
       title: 'Garage Cleanout',
       status: 'accepted',
       address: '14 Ember Rd',
       city: 'Red Deer',
       notes: 'Half-bay of boxes',
-      price: 120.0,
+      price: 120.0, userId: '', userName: '', name: '', location: const GeoPoint(0,0), createdAt: DateTime.now(), isCompleted: false,
     ),
     Job(
-      id: 2002,
+      id: '2002',
       title: 'Mattress Pickup',
       status: 'arrived',
       address: '77 Cornett Dr',
       city: 'Red Deer',
       notes: 'Queen mattress only',
-      price: 80.0,
+      price: 80.0, userId: '', userName: '', name: '', location: const GeoPoint(0,0), createdAt: DateTime.now(), isCompleted: false,
     ),
   ];
 
   /// Find by id in either list
-  static Job? find(int id) {
+  static Job? find(String id) {
     try {
       return [
         ...open,
@@ -86,7 +88,8 @@ class MockJobs {
   }
 
   /// Move a job from `open` to `mine` when accepted
-  static void moveToMine(int id) {
+  /// Move a job from `open` to `mine` when accepted
+  static void moveToMine(String id) {
     final idx = open.indexWhere((j) => j.id == id);
     if (idx != -1) {
       final j = open.removeAt(idx);
