@@ -3,6 +3,7 @@ import 'package:ggg_app/models/booking_request.dart';
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:ggg_app/models/job.dart';
 import 'package:http/http.dart' as http;
 import '../app_config.dart';
@@ -15,15 +16,18 @@ class ApiService {
   get contractorId => null;
 
   /// Converts the complex BookingRequest object into a JSON format suitable for the API.
-  Map<String, dynamic> _bookingRequestToJson(BookingRequest request) {
+  /// Made public and annotated with @visibleForTesting so unit tests can call it.
+  @visibleForTesting
+  Map<String, dynamic> bookingRequestToJson(BookingRequest request) {
     // Note: The backend API expects a specific structure.
     // Ensure these keys match your backend implementation (e.g., WordPress/WooCommerce).
     return {
       // Basic Booking Details
-      'service_name': request.serviceType?.toString(),
+      'service_name': request.serviceType?.name ?? '',
       'date_time': request.pickupDate!.toIso8601String(),
-      'time_slot': request.pickupTime!
-          .format(const BuildContext('context')), // Placeholder for time string
+      'time_slot': request.pickupTime != null
+          ? '${(request.pickupTime is TimeOfDay ? request.pickupTime.hour : request.pickupTime.hour).toString().padLeft(2, '0')}:${(request.pickupTime is TimeOfDay ? request.pickupTime.minute : request.pickupTime.minute).toString().padLeft(2, '0')}'
+          : null,
       'address': request.address,
       'latitude': request.latitude,
       'longitude': request.longitude,
@@ -39,9 +43,7 @@ class ApiService {
           .toList(),
 
       'estimated_total': request.items.fold(
-          0.0,
-          (sum, item) =>
-              sum + ((item.basePrice) * (item.quantity ?? 0))),
+          0.0, (sum, item) => sum + ((item.basePrice) * (item.quantity ?? 0))),
       // TODO: You may need to add customer identification, email, phone, etc. here.
     };
   }
@@ -52,13 +54,16 @@ class ApiService {
     final uri = Uri.parse('$_baseUrl/create-booking');
 
     try {
+      // Use the public conversion method here
+      final bodyJson = bookingRequestToJson(request);
+
       final response = await http.post(
         uri,
         headers: {
           'Content-Type': 'application/json',
           // Add API Key or Authorization header here if needed
         },
-        body: jsonEncode(_bookingRequestToJson(request)),
+        body: jsonEncode(bodyJson),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -83,8 +88,4 @@ class ApiService {
   }
 
   Future updateJobStatus(String id, String s) async {}
-}
-
-class BuildContext {
-  const BuildContext(String s);
 }
