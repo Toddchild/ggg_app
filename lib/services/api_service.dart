@@ -1,8 +1,8 @@
+import 'package:ggg_app/models/booking_request.dart';
 // lib/services/api_service.dart
 
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:ggg_app/customer/address_item_selection_page.dart';
 import 'package:ggg_app/models/job.dart';
 import 'package:http/http.dart' as http;
 import '../app_config.dart';
@@ -20,7 +20,7 @@ class ApiService {
     // Ensure these keys match your backend implementation (e.g., WordPress/WooCommerce).
     return {
       // Basic Booking Details
-      'service_name': request.serviceType.name,
+      'service_name': request.serviceType?.toString(),
       'date_time': request.pickupDate!.toIso8601String(),
       'time_slot': request.pickupTime!
           .format(const BuildContext('context')), // Placeholder for time string

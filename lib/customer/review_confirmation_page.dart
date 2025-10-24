@@ -1,7 +1,7 @@
+import 'package:ggg_app/models/booking_request.dart';
 // lib/customer/review_confirmation_page.dart
 
 import 'package:flutter/material.dart';
-import 'package:ggg_app/customer/address_item_selection_page.dart';
 import 'package:intl/intl.dart'; // Requires dependency in pubspec.yaml
 import '../app_config.dart';
 
@@ -130,7 +130,7 @@ class ReviewConfirmationPage extends StatelessWidget {
                   color: AppConfig.lightBackground,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppConfig.primaryBrandColor ?? Colors.transparent,
+                    color: AppConfig.primaryBrandColor,
                     width: 1.0,
                   ),
                 ),
