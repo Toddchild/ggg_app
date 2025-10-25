@@ -1,5 +1,3 @@
-library shared;
-
 export 'src/app_config.dart';
 export 'src/app_theme.dart';
 export 'src/models/contractor.dart';

@@ -12,4 +12,9 @@ class ApiClient {
     final uri = Uri.parse('$baseUrl$path');
     return http.get(uri);
   }
+
+  Future<http.Response> post(String path, {Map<String, String>? headers, Object? body}) {
+    final uri = Uri.parse('$baseUrl$path');
+    return http.post(uri, headers: headers, body: body);
+  }
 }
