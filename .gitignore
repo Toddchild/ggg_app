@@ -49,3 +49,4 @@ flutter_export_environment.sh
 # If you want to keep google-services.json out of the repo, uncomment:
 # android/app/google-services.json
 pubspec.lock EOF
+apps//packages/
