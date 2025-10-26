@@ -16,9 +16,10 @@ class PickupItem {
     required this.description,
     required this.basePrice,
     this.imageUrl,
+    int? quantity,
   });
 
-  num? get quantity => null;
+  int? get quantity => null;
 }
 
 // Updated demo list of items reflecting Go Garbage Grabber service categories.

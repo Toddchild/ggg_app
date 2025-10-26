@@ -1,51 +1,54 @@
-// lib/screens/customer_home.dart
+// lib/customer/customer_home_page.dart
+//
+// Customer home with six quick-service cards that use the canonical
+// Service model (from lib/customer/models.dart) to avoid runtime type conflicts.
 
 import 'package:flutter/material.dart';
 import 'package:ggg_app/customer/booking/booking_time_page.dart';
-// Assume this file exists for single-item booking flow
-import '../customer/multi_item_selection_page.dart';
+import 'package:ggg_app/customer/multi_item_selection_page.dart';
+import 'models.dart'; // canonical Service model for customer features
 
-// Service data model for the main selection cards
-class Service {
-  final String title;
-  final String description;
-  final IconData icon;
-  final double basePrice;
-
-  const Service({
-    required this.title,
-    required this.description,
-    required this.icon,
-    required this.basePrice,
-  });
+// Map service name (or id) to an icon for UI.
+IconData _iconForService(Service s) {
+  final key = s.name.toLowerCase();
+  if (key.contains('couch') || key.contains('single') || key.contains('pickup')) {
+    return Icons.airline_seat_recline_extra;
+  } else if (key.contains('appliance') || key.contains('fridge') || key.contains('washer')) {
+    return Icons.kitchen;
+  } else if (key.contains('mattress')) {
+    return Icons.bed;
+  } else if (key.contains('truck') || key.contains('half') || key.contains('full')) {
+    return Icons.local_shipping;
+  } else if (key.contains('tire')) {
+    return Icons.tire_repair;
+  } else if (key.contains('ewaste') || key.contains('e-waste') || key.contains('elect')) {
+    return Icons.computer;
+  }
+  return Icons.delete_outline;
 }
 
-// The "six main cards" the user mentioned
-const List<Service> _availableServices = [
-  Service(title: 'Single Item Pickup', description: 'For one large item only.', icon: Icons.shopping_bag, basePrice: 150.00),
-  Service(title: 'Yard Waste Removal', description: 'Bags of leaves, branches, etc.', icon: Icons.grass, basePrice: 80.00),
-  Service(title: 'Appliance Removal', description: 'Old washer, dryer, or fridge.', icon: Icons.kitchen, basePrice: 120.00),
-  Service(title: 'Construction Debris', description: 'Wood, drywall, and rubble.', icon: Icons.construction, basePrice: 200.00),
-  Service(title: 'E-Waste Recycling', description: 'Computers, monitors, printers.', icon: Icons.computer, basePrice: 50.00),
-  Service(title: 'Tire Disposal', description: 'Disposal of old car and truck tires.', icon: Icons.tire_repair, basePrice: 25.00),
+// The "six main cards" the user wanted. Uses the canonical Service model.
+final List<Service> _availableServices = [
+  const Service(id: 'svc_single_item', name: 'Single Item Pickup', description: 'For one large item only.', minutes: 15, price: 150.00),
+  const Service(id: 'svc_yard_waste', name: 'Yard Waste Removal', description: 'Bags of leaves, branches, etc.', minutes: 30, price: 80.00),
+  const Service(id: 'svc_appliance', name: 'Appliance Removal', description: 'Old washer, dryer, or fridge.', minutes: 45, price: 120.00),
+  const Service(id: 'svc_construction', name: 'Construction Debris', description: 'Wood, drywall, and rubble.', minutes: 60, price: 200.00),
+  const Service(id: 'svc_ewaste', name: 'E-Waste Recycling', description: 'Computers, monitors, printers.', minutes: 20, price: 50.00),
+  const Service(id: 'svc_tires', name: 'Tire Disposal', description: 'Disposal of old car and truck tires.', minutes: 10, price: 25.00),
 ];
 
 class CustomerHomePage extends StatelessWidget {
   const CustomerHomePage({super.key});
 
   void _navigateToServiceBooking(BuildContext context, Service service) {
-    // This navigation path is for the simpler, single-service flow
     Navigator.of(context).push(
       MaterialPageRoute(
-        // NOTE: The app defines two different `Service` classes (one here and one in customer/models.dart).
-        // Cast to `dynamic` to bypass the static type mismatch. Prefer unifying the model or converting explicitly.
-        builder: (context) => BookingTimePage(service: service as dynamic),
+        builder: (context) => BookingTimePage(service: service),
       ),
     );
   }
 
   void _navigateToBulkSelection(BuildContext context) {
-    // This navigation path is for the new, complex multi-item, truck-load flow
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => const MultiItemSelectionPage(),
@@ -66,10 +69,10 @@ class CustomerHomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(service.icon, size: 40, color: Theme.of(context).colorScheme.primary),
+              Icon(_iconForService(service), size: 40, color: Theme.of(context).colorScheme.primary),
               const SizedBox(height: 12),
               Text(
-                service.title,
+                service.name,
                 style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
                 overflow: TextOverflow.ellipsis,
               ),
@@ -81,7 +84,7 @@ class CustomerHomePage extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const Spacer(),
-              Text('Starting at \$${service.basePrice.toStringAsFixed(2)}',
+              Text('Starting at \$${service.price.toStringAsFixed(2)}',
                    style: const TextStyle(fontWeight: FontWeight.w600, color: Colors.green)),
             ],
           ),
@@ -113,7 +116,7 @@ class CustomerHomePage extends StatelessWidget {
                 crossAxisCount: 2,
                 crossAxisSpacing: 16.0,
                 mainAxisSpacing: 16.0,
-                childAspectRatio: 0.85, // Adjust card height
+                childAspectRatio: 0.85,
               ),
               itemCount: _availableServices.length,
               itemBuilder: (context, index) {
@@ -123,15 +126,12 @@ class CustomerHomePage extends StatelessWidget {
           ),
         ],
       ),
-      
-      // The prominent button for bulk/multi-item selection
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
           boxShadow: [
-            // ignore: deprecated_member_use
-            BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 10),
+            BoxShadow(color: Colors.black.withAlpha(13), blurRadius: 6),
           ],
         ),
         child: SafeArea(
@@ -142,8 +142,6 @@ class CustomerHomePage extends StatelessWidget {
               icon: const Icon(Icons.inventory_2_outlined),
               label: const Text('Build Custom Bulk Order (Truck Load Tally)'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Theme.of(context).colorScheme.secondary,
-                foregroundColor: Theme.of(context).colorScheme.onSecondary,
                 padding: const EdgeInsets.symmetric(vertical: 16),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                 textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),

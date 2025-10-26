@@ -1,4 +1,4 @@
-import 'package:ggg_app/models/booking_request.dart';
+import 'package:ggg_app/booking_request.dart';
 // lib/customer/review_confirmation_page.dart
 
 import 'package:flutter/material.dart';
@@ -13,9 +13,7 @@ class ReviewConfirmationPage extends StatelessWidget {
   // Calculate the total estimated price based on selected items
   double get _totalPrice {
     return request.items.fold(
-        0.0,
-        (sum, item) =>
-            sum + ((item.basePrice) * (item.quantity ?? 0)));
+        0.0, (sum, item) => sum + ((item.basePrice) * (item.quantity ?? 0)));
   }
 
   // Format the date for display
@@ -30,7 +28,7 @@ class ReviewConfirmationPage extends StatelessWidget {
     // Example: Fri, Nov 15th at 9:00 AM
     return '${DateFormat('EEE, MMM d, yyyy').format(request.pickupDate!)} at ${DateFormat('h:mm a').format(dateTime)}';
   }
-  
+
   get color => null;
 
   @override
@@ -77,7 +75,7 @@ class ReviewConfirmationPage extends StatelessWidget {
                       _buildDetailRow(
                           context,
                           'Address',
-                            (request.address?.isEmpty ?? true)
+                          (request.address?.isEmpty ?? true)
                               ? 'Not Provided'
                               : request.address!),
                     ],
@@ -112,8 +110,7 @@ class ReviewConfirmationPage extends StatelessWidget {
                                       style: const TextStyle(
                                           fontWeight: FontWeight.w500)),
                                   Text(currencyFormat.format(
-                                      (item.basePrice) *
-                                          (item.quantity ?? 0))),
+                                      (item.basePrice) * (item.quantity ?? 0))),
                                 ],
                               ),
                             ))
@@ -130,7 +127,7 @@ class ReviewConfirmationPage extends StatelessWidget {
                   color: AppConfig.lightBackground,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppConfig.primaryBrandColor,
+                    color: AppConfig.primaryBrandColor ?? Colors.transparent,
                     width: 1.0,
                   ),
                 ),

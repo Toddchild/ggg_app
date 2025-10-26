@@ -15,9 +15,9 @@ class ContractorApp extends StatelessWidget {
     return MaterialApp(
       title: 'Contractor App',
       theme: AppTheme.light(),
-      home: const Scaffold(
-        appBar: AppBar(title: Text('Contractor')),
-        body: Center(child: Text('Contractor app using shared package')),
+      home: Scaffold(
+        appBar: AppBar(title: const Text('Contractor')),
+        body: const Center(child: Text('Contractor app using shared package')),
       ),
     );
   }

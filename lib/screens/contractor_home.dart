@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:ggg_app/screens/job_detail.dart';
 import '../models/job.dart';
-import '../services/api_service.dart' hide BuildContext;
+import '../services/api_service.dart';
 
 class ContractorHome extends StatefulWidget {
   final ApiService apiService;

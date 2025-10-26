@@ -1,5 +1,17 @@
+// lib/customer/booking/booking_time_page.dart
+//
+// Choose a date and a period (Morning or Afternoon). Instead of multiple
+// 30-minute slots this page offers two blocks:
+//  - Morning: 08:00 — 13:00
+//  - Afternoon: 13:00 — 19:00
+//
+// Continue passes the selected block's start time to PickupDetailsPage.
+
 import 'package:flutter/material.dart';
 import '../models.dart';
+import 'pickup_details_page.dart';
+
+enum Period { morning, afternoon }
 
 class BookingTimePage extends StatefulWidget {
   final Service service;
@@ -10,49 +22,48 @@ class BookingTimePage extends StatefulWidget {
 }
 
 class _BookingTimePageState extends State<BookingTimePage> {
-  DateTime _selectedDay = _stripTime(DateTime.now());
-  DateTime? _selectedDateTime;
+  // Start with earliest allowed booking day = tomorrow
+  DateTime _selectedDay = _stripTime(DateTime.now()).add(const Duration(days: 1));
+  Period? _selectedPeriod;
 
   static DateTime _stripTime(DateTime d) => DateTime(d.year, d.month, d.day);
 
-  List<DateTime> _generateSlots(DateTime day) {
-    // Demo hours: 9:00–17:00, every 30 minutes, next 14 days.
-    final start = DateTime(day.year, day.month, day.day, 9);
-    final end = DateTime(day.year, day.month, day.day, 17);
-    final now = DateTime.now();
-
-    final slots = <DateTime>[];
-    for (var t = start; t.isBefore(end); t = t.add(const Duration(minutes: 30))) {
-      // Simple “availability”: skip every 4th slot just to show some disabled ones.
-      final isFakeBlocked = t.minute == 0 && t.hour % 2 == 1; // e.g., 11:00, 13:00, 15:00
-      final isPast = t.isBefore(now);
-      if (!isFakeBlocked && !isPast) slots.add(t);
-    }
-    return slots;
-  }
-
   Future<void> _pickCalendarDay() async {
     final now = DateTime.now();
+    final earliest = _stripTime(now).add(const Duration(days: 1));
     final picked = await showDatePicker(
       context: context,
-      initialDate: _selectedDay.isBefore(_stripTime(now)) ? _stripTime(now) : _selectedDay,
-      firstDate: _stripTime(now),
-      lastDate: _stripTime(now.add(const Duration(days: 60))),
+      initialDate: _selectedDay.isBefore(earliest) ? earliest : _selectedDay,
+      firstDate: earliest,
+      lastDate: earliest.add(const Duration(days: 60)),
     );
     if (picked != null) {
       setState(() {
         _selectedDay = _stripTime(picked);
-        _selectedDateTime = null;
+        _selectedPeriod = null;
       });
     }
   }
 
+  void _selectPeriod(Period p) {
+    setState(() {
+      _selectedPeriod = p;
+    });
+  }
+
+  DateTime _scheduledStartFor(Period p) {
+    final startHour = p == Period.morning ? 8 : 13;
+    return DateTime(_selectedDay.year, _selectedDay.month, _selectedDay.day, startHour);
+  }
+
+  String _periodLabel(Period p) =>
+      p == Period.morning ? 'Morning (08:00–13:00)' : 'Afternoon (13:00–19:00)';
+
   @override
   Widget build(BuildContext context) {
-    final slots = _generateSlots(_selectedDay);
-
+    final selectedPeriod = _selectedPeriod;
     return Scaffold(
-      appBar: AppBar(title: const Text('Choose date & time')),
+      appBar: AppBar(title: const Text('Choose date & time block')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Center(
@@ -75,52 +86,60 @@ class _BookingTimePageState extends State<BookingTimePage> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Text('Select a date, then pick a time',
-                        style: Theme.of(context).textTheme.bodyMedium),
+                    Text('Choose a date and a time block', style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
-                const SizedBox(height: 16),
-                if (slots.isEmpty)
-                  const Card(
-                    child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('No times available on this day. Try another date.'),
+                const SizedBox(height: 12),
+
+                // Period selector: two blocks only
+                Wrap(
+                  spacing: 12,
+                  children: [
+                    ChoiceChip(
+                      label: Text(_periodLabel(Period.morning), textAlign: TextAlign.center),
+                      selected: selectedPeriod == Period.morning,
+                      onSelected: (_) => _selectPeriod(Period.morning),
                     ),
-                  )
-                else
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(12),
-                      child: Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          for (final t in slots)
-                            ChoiceChip(
-                              label: Text(_fmtTime(t)),
-                              selected: _selectedDateTime == t,
-                              onSelected: (_) => setState(() => _selectedDateTime = t),
-                            ),
-                        ],
+                    ChoiceChip(
+                      label: Text(_periodLabel(Period.afternoon), textAlign: TextAlign.center),
+                      selected: selectedPeriod == Period.afternoon,
+                      onSelected: (_) => _selectPeriod(Period.afternoon),
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      Text('Selected date: ${_selectedDay.year}-${_selectedDay.month.toString().padLeft(2, '0')}-${_selectedDay.day.toString().padLeft(2, '0')}'),
+                      const SizedBox(height: 6),
+                      Text('Selected block: ${selectedPeriod == null ? 'None' : _periodLabel(selectedPeriod)}'),
+                      const SizedBox(height: 6),
+                      const Text(
+                        'Note: Your pickup will be scheduled within the selected block. '
+                        'Contractors will receive the full block and will pick a specific time within it.',
+                        style: TextStyle(fontSize: 12, color: Colors.grey),
                       ),
-                    ),
+                    ]),
                   ),
+                ),
+
                 const Spacer(),
                 Row(
                   children: [
-                    OutlinedButton(
-                      onPressed: () => Navigator.of(context).maybePop(),
-                      child: const Text('Back'),
-                    ),
+                    OutlinedButton(onPressed: () => Navigator.of(context).maybePop(), child: const Text('Back')),
                     const Spacer(),
                     FilledButton(
-                      onPressed: _selectedDateTime == null
+                      onPressed: selectedPeriod == null
                           ? null
                           : () {
-                              // Next step placeholder (e.g., choose provider, confirm, etc.)
-                              final dt = _selectedDateTime!;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Selected ${_fmtDate(dt)} @ ${_fmtTime(dt)}')),
+                              final dt = _scheduledStartFor(selectedPeriod);
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => PickupDetailsPage(service: widget.service, scheduledAt: dt),
+                                ),
                               );
                             },
                       child: const Text('Continue'),
@@ -134,12 +153,4 @@ class _BookingTimePageState extends State<BookingTimePage> {
       ),
     );
   }
-
-  static String _fmtTime(DateTime dt) {
-    final h = dt.hour > 12 ? dt.hour - 12 : (dt.hour == 0 ? 12 : dt.hour);
-    final m = dt.minute.toString().padLeft(2, '0');
-    final ampm = dt.hour >= 12 ? 'PM' : 'AM';
-    return '$h:$m $ampm';
-    }
-  static String _fmtDate(DateTime dt) => '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')}';
 }

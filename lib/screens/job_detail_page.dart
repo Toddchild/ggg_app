@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:ggg_app/screens/job_detail.dart';
 import 'package:intl/intl.dart';
 import '../models/job.dart';
-import '../services/api_service.dart' hide BuildContext;
+import '../services/api_service.dart';
 
 // This page serves as the contractor's main dashboard with tabbed views
 // for Available, In Progress, and Completed jobs.
@@ -87,32 +87,28 @@ class _ContractorHomePageState extends State<ContractorHomePage>
               j.status == 'completed' && j.contractorId == currentContractorId)
           .toList();
     }
+    // Return an empty list if the status is unknown
     return [];
   }
 
   // Quick action handler for accepting a job directly from the list
   Future<void> _handleQuickAccept(Job job) async {
     setState(() {
-      job.isAccepting =
-          true; // Use the transient state to show loading only on this card
+      job.isAccepting = true;
     });
 
     try {
-      final success = await _apiService.updateJobStatus(job.id, 'inProgress');
+      await _apiService.updateJobStatus(job.id, 'inProgress');
 
-      if (success) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-                content:
-                    Text('Job #${job.id} Accepted! It\'s now in "My Jobs".')),
-          );
-        }
-        // Force refresh the list to instantly move the job to the correct tab
-        _refreshJobs();
-      } else {
-        throw Exception('API failed to accept job.');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content:
+                  Text('Job #${job.id} Accepted! It\'s now in "My Jobs".')),
+        );
       }
+      // Force refresh the list to instantly move the job to the correct tab
+      _refreshJobs();
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -25,28 +25,30 @@ class AppConfig {
       productId: 101, // Corresponds to a product ID in the external store
       label: 'Single Mattress',
       // Swapped from bed_outlined to single_bed_outlined for clarity
-      icon: Icons.single_bed_outlined, 
+      icon: Icons.single_bed_outlined,
     ),
     QuickItem(
       productId: 102,
       label: 'Small Appliance',
-      // Swapped from kitchen_outlined to local_laundry_service_outlined 
+      // Swapped from kitchen_outlined to local_laundry_service_outlined
       // to better represent a standalone appliance.
       icon: Icons.local_laundry_service_outlined,
     ),
     QuickItem(
       productId: 103,
       label: 'Small Furniture',
-      // Swapped from chair_outlined to table_bar_outlined 
+      // Swapped from chair_outlined to table_bar_outlined
       // for a more general 'furniture' look.
       icon: Icons.table_bar_outlined,
     ),
     QuickItem(
       productId: 104,
       label: 'Yard Waste Bag (x5)',
-      // Swapped from grass_outlined to delete_sweep_outlined 
+      // Swapped from grass_outlined to delete_sweep_outlined
       // to clearly indicate a cleanup/removal service.
       icon: Icons.delete_sweep_outlined,
     ),
   ];
+
+  static Future<void> initForApp(param0) async {}
 }
