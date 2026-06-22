@@ -16,9 +16,13 @@ void main() {
     await tester.tap(find.text('Routes'));
     await tester.pumpAndSettle();
     expect(find.text('My Active Routes & Map'), findsOneWidget);
+    expect(find.textContaining('Pending'), findsWidgets);
+    expect(find.textContaining('Anytown'), findsWidgets);
 
     await tester.tap(find.text('Earnings'));
     await tester.pumpAndSettle();
     expect(find.text('Earnings & Payout History'), findsOneWidget);
+    expect(find.text('Recent Payouts'), findsOneWidget);
+    expect(find.textContaining('\$345'), findsOneWidget);
   });
 }
