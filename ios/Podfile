@@ -39,12 +39,13 @@ end
 post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
-    # Explicitly set the deployment target and clear compiler flags to fix the '-G' error
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-      # Crucial fix: Clear problematic C/C++ flags that cause the '-G' error
-      config.build_settings['OTHER_CPLUSPLUSFLAGS'] = ''
-      config.build_settings['OTHER_CFLAGS'] = ''
+      other_cflags = config.build_settings['OTHER_CFLAGS']
+      if other_cflags
+        flags = Array(other_cflags)
+        config.build_settings['OTHER_CFLAGS'] = flags.reject { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
+      end
     end
   end
 end
