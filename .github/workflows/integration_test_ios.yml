@@ -10,6 +10,7 @@ on:
 jobs:
   integration-tests-ios:
     runs-on: macos-latest
+    timeout-minutes: 30
 
     permissions:
       contents: read
@@ -51,4 +52,4 @@ jobs:
           echo "SIMULATOR_UDID=${SIMULATOR_UDID}" >> "${GITHUB_ENV}"
 
       - name: Run integration test on iPhone 16 simulator
-        run: flutter test integration_test/app_test.dart -d "${SIMULATOR_UDID}"
+        run: flutter test --timeout=20m integration_test/app_test.dart -d "${SIMULATOR_UDID}"
