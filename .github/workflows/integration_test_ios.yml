@@ -1,0 +1,54 @@
+name: iOS Integration Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  integration-tests-ios:
+    runs-on: macos-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.27.x"
+          channel: stable
+          cache: true
+
+      - name: Install Flutter dependencies
+        run: flutter pub get
+
+      - name: Create and boot iPhone 16 simulator
+        run: |
+          set -euo pipefail
+
+          RUNTIME_ID=$(xcrun simctl list runtimes available | grep -Eo 'com\.apple\.CoreSimulator\.SimRuntime\.iOS-[0-9-]+' | head -n1)
+          if [ -z "${RUNTIME_ID}" ]; then
+            echo "No available iOS simulator runtime found."
+            exit 1
+          fi
+
+          DEVICE_TYPE_ID=$(xcrun simctl list devicetypes | sed -nE 's/^iPhone 16 \((com\.apple\.CoreSimulator\.SimDeviceType\.[^)]+)\)$/\1/p' | head -n1)
+          if [ -z "${DEVICE_TYPE_ID}" ]; then
+            echo "iPhone 16 device type not found."
+            exit 1
+          fi
+
+          SIMULATOR_UDID=$(xcrun simctl create "iPhone 16 CI" "${DEVICE_TYPE_ID}" "${RUNTIME_ID}")
+          xcrun simctl boot "${SIMULATOR_UDID}"
+          xcrun simctl bootstatus "${SIMULATOR_UDID}" -b
+
+          echo "SIMULATOR_UDID=${SIMULATOR_UDID}" >> "${GITHUB_ENV}"
+
+      - name: Run integration test on iPhone 16 simulator
+        run: flutter test integration_test/app_test.dart -d "${SIMULATOR_UDID}"
