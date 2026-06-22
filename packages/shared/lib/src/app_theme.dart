@@ -98,7 +98,7 @@ class AppTheme {
         error: Colors.red.shade400,
       ),
       scaffoldBackgroundColor: const Color(0xFF121212),
-      appBarTheme: AppBarTheme(
+      appBarTheme: const AppBarTheme(
         backgroundColor: primaryDarkColor,
         foregroundColor: textLightColor,
         elevation: 2,
