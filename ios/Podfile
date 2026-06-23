@@ -43,8 +43,16 @@ post_install do |installer|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
       other_cflags = config.build_settings['OTHER_CFLAGS']
       if other_cflags
-        flags = Array(other_cflags)
-        config.build_settings['OTHER_CFLAGS'] = flags.reject { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
+        sanitized_flags = Array(other_cflags).flat_map do |flag_value|
+          if flag_value.is_a?(String)
+            flag_value.split(/\s+/)
+          else
+            flag_value
+          end
+        end.reject { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
+
+        config.build_settings['OTHER_CFLAGS'] =
+          other_cflags.is_a?(String) ? sanitized_flags.join(' ') : sanitized_flags
       end
     end
   end
