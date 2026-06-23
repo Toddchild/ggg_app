@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       title: 'GGG App (recovery)',
       home: const HomeScreen(),
       debugShowCheckedModeBanner: false,
@@ -85,7 +85,7 @@ class HomeScreen extends StatelessWidget {
               'replace the runApp call in this file with your original widget.',
             ),
             const SizedBox(height: 16),
-            Text('appId (from --dart-define or default): $kAppId'),
+            const Text('appId (from --dart-define or default): $kAppId'),
             const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
