@@ -27,6 +27,18 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
+def strip_invalid_ios_simulator_flag_from_xcconfigs
+  pods_root = File.join(File.dirname(__FILE__), 'Pods')
+
+  Dir.glob(File.join(pods_root, '**', '*.xcconfig')).each do |xcconfig_path|
+    content = File.read(xcconfig_path)
+    new_content = content.gsub(/(^|[[:space:]])-GCC_WARN_INHIBIT_ALL_WARNINGS(?=($|[[:space:]]))/) do
+      Regexp.last_match(1)
+    end
+    File.write(xcconfig_path, new_content) if new_content != content
+  end
+end
+
 target 'Runner' do
   use_frameworks!
 
@@ -43,15 +55,12 @@ post_install do |installer|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
     end
   end
+end
 
+post_integrate do |_installer|
   # Newer Apple clang rejects -GCC_WARN_INHIBIT_ALL_WARNINGS on iOS simulator
   # targets (parses -G as a debug-info option unsupported on that platform).
-  # Strip the flag from all CocoaPods-generated xcconfig files so it is never
-  # inherited into the build via $(inherited) in OTHER_CFLAGS.
-  pods_root = File.join(File.dirname(__FILE__), 'Pods')
-  Dir.glob(File.join(pods_root, '**', '*.xcconfig')).each do |xcconfig_path|
-    content = File.read(xcconfig_path)
-    new_content = content.gsub(/ -GCC_WARN_INHIBIT_ALL_WARNINGS/, '')
-    File.write(xcconfig_path, new_content) if new_content != content
-  end
+  # Strip the flag from all CocoaPods-generated xcconfig files after CocoaPods
+  # writes them to disk so it cannot be inherited into OTHER_CFLAGS.
+  strip_invalid_ios_simulator_flag_from_xcconfigs
 end
