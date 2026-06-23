@@ -41,19 +41,17 @@ post_install do |installer|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
       config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
-      other_cflags = config.build_settings['OTHER_CFLAGS']
-      if other_cflags
-        sanitized_flags = Array(other_cflags).flat_map do |flag_value|
-          if flag_value.is_a?(String)
-            flag_value.split(/\s+/)
-          else
-            flag_value
-          end
-        end.reject { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
-
-        config.build_settings['OTHER_CFLAGS'] =
-          other_cflags.is_a?(String) ? sanitized_flags.join(' ') : sanitized_flags
-      end
     end
+  end
+
+  # Newer Apple clang rejects -GCC_WARN_INHIBIT_ALL_WARNINGS on iOS simulator
+  # targets (parses -G as a debug-info option unsupported on that platform).
+  # Strip the flag from all CocoaPods-generated xcconfig files so it is never
+  # inherited into the build via $(inherited) in OTHER_CFLAGS.
+  pods_root = File.join(File.dirname(__FILE__), 'Pods')
+  Dir.glob(File.join(pods_root, '**', '*.xcconfig')).each do |xcconfig_path|
+    content = File.read(xcconfig_path)
+    new_content = content.gsub(/ -GCC_WARN_INHIBIT_ALL_WARNINGS/, '')
+    File.write(xcconfig_path, new_content) if new_content != content
   end
 end
